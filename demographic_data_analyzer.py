@@ -6,6 +6,7 @@ def calculate_demographic_data(print_data=True):
     # Read data from file
     path = 'adult.data.csv'
     df = pd.read_csv(path, header = 0)
+    df = df.fillna(0)
 
     # How many of each race are represented in this dataset? This should be a Pandas series with race names as the index labels.
     race_count = pd.Series(df['race'].value_counts())
@@ -22,15 +23,20 @@ def calculate_demographic_data(print_data=True):
     # What percentage of people without advanced education make more than 50K?
 
     # with and without `Bachelors`, `Masters`, or `Doctorate`
-    higher_education = None
-    lower_education = None
+    higher_education = educ['Bachelors'] + educ['Masters'] + educ['Doctorate']
+    lower_education = educ.sum() - higher_education
 
     # percentage with salary >50K
-    higher_education_rich = None
-    lower_education_rich = None
+    salaries = pd.pivot_table(df, values= 'age' ,columns=['salary'], index=['education'] , aggfunc='count')
+    salaries = salaries.fillna(0)
+    higher_education_salaries = salaries['>50K']['Bachelors'] + salaries['>50K']['Masters'] + salaries['>50K']['Doctorate']
+    lower_education_salaries = salaries['>50K'].sum() - higher_education_salaries
+    
+    higher_education_rich = round(higher_education_salaries/(salaries['>50K'].sum() + salaries['<=50K'].sum())*100, 2)
+    lower_education_rich = round(lower_education_salaries/(salaries['>50K'].sum() + salaries['<=50K'].sum())*100, 2)
 
     # What is the minimum number of hours a person works per week (hours-per-week feature)?
-    min_work_hours = None
+    min_work_hours = df['hours-per-week'].min()
 
     # What percentage of the people who work the minimum number of hours per week have a salary of >50K?
     num_min_workers = None
