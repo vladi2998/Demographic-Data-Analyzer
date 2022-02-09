@@ -1,20 +1,22 @@
 import pandas as pd
+import numpy as np
 
 
 def calculate_demographic_data(print_data=True):
     # Read data from file
     path = 'adult.data.csv'
     df = pd.read_csv(path, header = 0)
-    print(df)
 
     # How many of each race are represented in this dataset? This should be a Pandas series with race names as the index labels.
-    race_count = df['race'].value_counts()
+    race_count = pd.Series(df['race'].value_counts())
 
     # What is the average age of men?
-    average_age_men = None
+    table = pd.pivot_table(df, values = 'age', columns=['sex'], aggfunc=np.mean)
+    average_age_men = round(table['Male']['age'], 2)
 
     # What is the percentage of people who have a Bachelor's degree?
-    percentage_bachelors = None
+    educ = df['education'].value_counts()
+    percentage_bachelors = round(educ['Bachelors']/educ.sum()*100, 2)
 
     # What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K?
     # What percentage of people without advanced education make more than 50K?
