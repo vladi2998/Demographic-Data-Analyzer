@@ -39,16 +39,29 @@ def calculate_demographic_data(print_data=True):
     min_work_hours = df['hours-per-week'].min()
 
     # What percentage of the people who work the minimum number of hours per week have a salary of >50K?
-    num_min_workers = None
+    count_workers_per_hour = pd.pivot_table(df, values= 'age' ,columns=['salary'], index=['hours-per-week'] , aggfunc='count')
 
-    rich_percentage = None
+    num_min_workers = count_workers_per_hour['>50K'][1]
+
+    rich_percentage = round(num_min_workers/32561 * 100, 3)
 
     # What country has the highest percentage of people that earn >50K?
-    highest_earning_country = None
-    highest_earning_country_percentage = None
+    countries_with_higher_salaries = pd.pivot_table(df, values= 'age' ,columns=['salary'], index=['native-country'] , aggfunc='count')
+    countries_with_higher_salaries = countries_with_higher_salaries.fillna(0)
+
+    percent_countries_with_higher_salaries = pd.DataFrame(countries_with_higher_salaries, columns = ['% <=50K', '% >50K'])
+
+    percent_countries_with_higher_salaries['% <=50K'] = countries_with_higher_salaries['<=50K']/(countries_with_higher_salaries['<=50K'] + countries_with_higher_salaries['>50K']) * 100
+    percent_countries_with_higher_salaries['% >50K'] = countries_with_higher_salaries['>50K']/(countries_with_higher_salaries['<=50K'] + countries_with_higher_salaries['>50K']) * 100
+
+    highest_earning_country = percent_countries_with_higher_salaries['% >50K'].idxmax()
+    highest_earning_country_percentage = round(percent_countries_with_higher_salaries['% >50K'].max(), 1)
 
     # Identify the most popular occupation for those who earn >50K in India.
-    top_IN_occupation = None
+    occupation_per_country = pd.pivot_table(df, values= 'age' ,columns=['native-country'], index=['occupation'] , aggfunc='count')
+    occupation_per_country = occupation_per_country.fillna(0)
+    
+    top_IN_occupation = occupation_per_country['India'].idxmax()
 
     # DO NOT MODIFY BELOW THIS LINE
 
