@@ -13,11 +13,11 @@ def calculate_demographic_data(print_data=True):
 
     # What is the average age of men?
     table = pd.pivot_table(df, values = 'age', columns=['sex'], aggfunc=np.mean)
-    average_age_men = round(table['Male']['age'], 2)
+    average_age_men = round(table['Male']['age'], 1)
 
     # What is the percentage of people who have a Bachelor's degree?
     educ = df['education'].value_counts()
-    percentage_bachelors = round(educ['Bachelors']/educ.sum()*100, 2)
+    percentage_bachelors = round(educ['Bachelors']/educ.sum()*100, 1)
 
     # What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K?
     # What percentage of people without advanced education make more than 50K?
@@ -32,8 +32,8 @@ def calculate_demographic_data(print_data=True):
     higher_education_salaries = salaries['>50K']['Bachelors'] + salaries['>50K']['Masters'] + salaries['>50K']['Doctorate']
     lower_education_salaries = salaries['>50K'].sum() - higher_education_salaries
     
-    higher_education_rich = round(higher_education_salaries/(salaries['>50K'].sum() + salaries['<=50K'].sum())*100, 2)
-    lower_education_rich = round(lower_education_salaries/(salaries['>50K'].sum() + salaries['<=50K'].sum())*100, 2)
+    higher_education_rich = round(higher_education_salaries/(higher_education_salaries + salaries['<=50K']['Bachelors'] + salaries['<=50K']['Masters'] + salaries['<=50K']['Doctorate'])*100, 1)
+    lower_education_rich = round(lower_education_salaries/(lower_education_salaries + salaries['<=50K'].sum() - salaries['<=50K']['Bachelors'] - salaries['<=50K']['Masters'] - salaries['<=50K']['Doctorate'])*100, 1)
 
     # What is the minimum number of hours a person works per week (hours-per-week feature)?
     min_work_hours = df['hours-per-week'].min()
@@ -43,7 +43,7 @@ def calculate_demographic_data(print_data=True):
 
     num_min_workers = count_workers_per_hour['>50K'][1]
 
-    rich_percentage = round(num_min_workers/32561 * 100, 3)
+    rich_percentage = round(num_min_workers/20 * 100, 3)
 
     # What country has the highest percentage of people that earn >50K?
     countries_with_higher_salaries = pd.pivot_table(df, values= 'age' ,columns=['salary'], index=['native-country'] , aggfunc='count')
@@ -91,4 +91,3 @@ def calculate_demographic_data(print_data=True):
         'top_IN_occupation': top_IN_occupation
     }
 
-calculate_demographic_data()
